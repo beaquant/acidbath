@@ -24,6 +24,11 @@
 > * Populate the source id in the td config file, which is provided by TDA
 
     github.com/marklaczynski/acidbath/broker/tdapi/config/tdconfig.json 
+    {
+	"sourceid": "<sourceid here>",
+	"version": "1"
+    }
+
 > * Run the applicaiton
 
     go run acidbath.go 
