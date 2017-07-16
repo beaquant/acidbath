@@ -24,6 +24,7 @@ import (
 
 	"github.com/marklaczynski/acidbath/dm/asset"
 	"github.com/marklaczynski/acidbath/lib/mjlog"
+	"github.com/marklaczynski/acidbath/lib/registry"
 )
 
 var (
@@ -51,7 +52,6 @@ func (wls *Watchlists) AddWatchlist(name string, id int64) {
 }
 
 func (wls *Watchlists) AddWatchedSymbol(id int64, symbol string, assetType asset.AssetType) {
-
 	var newWatchedSymbol WatchedSymbolType
 	switch assetType {
 	case asset.EquityType:
@@ -60,10 +60,14 @@ func (wls *Watchlists) AddWatchedSymbol(id int64, symbol string, assetType asset
 		logError.Printf("unsupported assetType :%s: in watchlist id %d. symbol: %s", assetType, id, symbol)
 	}
 
-	wls.watchlist[id].watchedSymbols = append(wls.watchlist[id].watchedSymbols, newWatchedSymbol)
+	(wls.watchlist[id]).AddWatchedSymbol(newWatchedSymbol)
 }
 
-func (wl WatchlistType) WatchedSymbolsInIVRankRange(lowestIvRankParam float32, highestIvRankParam float32) WatchedSymbolSlice {
+func (wl *WatchlistType) AddWatchedSymbol(newSymbol WatchedSymbolType) {
+	wl.watchedSymbols = append(wl.watchedSymbols, newSymbol)
+}
+
+func (wl *WatchlistType) WatchedSymbolsInIVRankRange(lowestIvRankParam float32, highestIvRankParam float32) WatchedSymbolSlice {
 	//logDebug.Printf("watchlist: %#v", wl)
 	watchedSymbolsInIvRange := make(WatchedSymbolSlice, 0, 0)
 	for _, currWs := range wl.WatchedSymbols() {
@@ -84,6 +88,7 @@ func (wl WatchlistType) HighestIvRankedSymbol() WatchedSymbolType {
 	return sortedWatchlistByIv[len(sortedWatchlistByIv)-1]
 }
 
+/*
 func (wl WatchlistType) HighestIvRankedSymbolExcluding(symbols []string) WatchedSymbolType {
 	sortedWatchlistByIv := make(WatchedSymbolSlice, len(wl.WatchedSymbols()), len(wl.WatchedSymbols()))
 	copy(sortedWatchlistByIv, wl.WatchedSymbols())
@@ -92,6 +97,7 @@ func (wl WatchlistType) HighestIvRankedSymbolExcluding(symbols []string) Watched
 	//TODO: FINISH loop from the highest to lowest and pick the first occurance which doesn't match any of the symbolsParam
 	return sortedWatchlistByIv[len(sortedWatchlistByIv)-1]
 }
+*/
 
 func (wl WatchlistType) LowestIvRankedSymbol() WatchedSymbolType {
 	sortedWatchlistByIv := make(WatchedSymbolSlice, len(wl.WatchedSymbols()), len(wl.WatchedSymbols()))
@@ -113,23 +119,44 @@ func NewWatchlist(newName string) *WatchlistType {
 	}
 }
 
-func (wl WatchlistType) WatchedSymbols() WatchedSymbolSlice {
+func (wl *WatchlistType) WatchedSymbols() WatchedSymbolSlice {
+	logDebug.Printf("1 watched symbols: %v", wl.watchedSymbols)
+	bs := registry.GetBadSymbols()
+
+	for i := 0; i < bs.Count(); i++ {
+		for idx, currSymbol := range wl.watchedSymbols {
+			logDebug.Printf("idx: %d currSymbol: %s\n", idx, currSymbol.Stock().Symbol())
+			if bs.IsBadSymbol(currSymbol.Stock().Symbol()) {
+				logDebug.Printf("1 watched symbols: %v", wl.watchedSymbols)
+				logDebug.Printf("idx: %d currSymbol: %s\n", idx, currSymbol.Stock().Symbol())
+				wl.watchedSymbols[idx] = wl.watchedSymbols[len(wl.watchedSymbols)-1]
+				wl.watchedSymbols = wl.watchedSymbols[:len(wl.watchedSymbols)-1]
+				break
+			}
+		}
+	}
+
+	logDebug.Printf("2 watched symbols: %v", wl.watchedSymbols)
 	return wl.watchedSymbols
 }
 
-func (wl WatchlistType) SetWatchedSymbols(newWatchedSymbols *WatchedSymbolSlice) {
-	wl.watchedSymbols = *newWatchedSymbols
-}
-
-func (wl WatchlistType) Name() string {
+func (wl *WatchlistType) Name() string {
 	return wl.name
 }
 
-func (wl WatchlistType) SetName(newName string) {
+func (wl *WatchlistType) SetName(newName string) {
 	wl.name = newName
 }
 
 type WatchedSymbolSlice []WatchedSymbolType
+
+func (wss WatchedSymbolSlice) String() string {
+	returnString := ""
+	for _, currSymbol := range wss {
+		returnString = returnString + "," + currSymbol.Stock().Symbol()
+	}
+	return returnString
+}
 
 func (wss WatchedSymbolSlice) Len() int {
 	return len(wss)

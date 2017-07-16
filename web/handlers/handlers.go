@@ -634,8 +634,8 @@ func TestOrderHandler(w http.ResponseWriter, r *http.Request, brokerSession gene
 	order.SetOrderType(orderconst.Limit)
 	order.SetQuantity(1)
 	order.SetPrice(financial.Money{big.NewRat(100, 1)})
-	//TODO: fix this up this is hardcoded for right now, which is fine, but after 03/17/2017 this will stop working.
-	order.SetSymbol("SPY_031717P100")
+	//TODO: fix this up this is hardcoded for right now, which is fine, but after 06/15/2018 this will stop working.
+	order.SetSymbol("SPY_061518P100")
 
 	err := brokerSession.SendSingleLegOptionTrade(order)
 	if err != nil {
