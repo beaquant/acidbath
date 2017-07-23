@@ -1486,6 +1486,10 @@ func postRequest(rawurl string, postParams url.Values, v interface{}, isLoggedIn
 
 		symbolCount := tdstream.ReadInt32(r)
 		logDebug.Printf("symbol count %d\n", symbolCount)
+		if symbolCount > 1 {
+			logError.Printf("Currently only 1 symbol at a time is supported, and for some reason. %d is the number of symbols claimed by API call", symbolCount)
+			return fmt.Errorf("Currently only 1 symbol at a time is supported, and for some reason. %d is the number of symbols claimed by API call", symbolCount)
+		}
 
 		var idx int32
 		for idx = 0; idx < symbolCount; idx++ {

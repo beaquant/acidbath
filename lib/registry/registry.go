@@ -36,7 +36,6 @@ var (
 //Dates is a slice of time.Times
 type BadSymbols struct {
 	isBad map[string]bool
-	//optionUpdateChans map[string]chan *option.Option
 }
 
 func GetBadSymbols() *BadSymbols {
@@ -49,33 +48,14 @@ func GetBadSymbols() *BadSymbols {
 
 func (bs *BadSymbols) AddBadSymbol(symbol string) {
 	bs.isBad[symbol] = true
-	//if bs.IsBadSymbol(symbol) == false {
-	//	bs.symbols = append(bs.symbols, symbol)
-	//}
 }
 
 func (bs *BadSymbols) RemoveBadSymbol(symbol string) {
 	delete(bs.isBad, symbol)
-	/*
-		for idx, currSymbol := range bs.symbols {
-			if currSymbol == symbol {
-				bs.symbols[idx] = bs.symbols[len(bs.symbols)-1]
-				bs.symbols = bs.symbols[:len(bs.symbols)-1]
-			}
-		}
-	*/
 }
 
 func (bs *BadSymbols) IsBadSymbol(symbol string) bool {
 	return bs.isBad[symbol] == true
-	/*
-		for _, currSymbol := range bs.symbols {
-			if currSymbol == symbol {
-				return true
-			}
-		}
-		return false
-	*/
 }
 
 func (bs *BadSymbols) String() string {
@@ -86,7 +66,6 @@ func (bs *BadSymbols) String() string {
 		}
 	}
 	return return_string
-	//return strings.Join(bs.symbols, ",")
 }
 
 func (bs *BadSymbols) Count() int {
