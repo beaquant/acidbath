@@ -120,15 +120,12 @@ func NewWatchlist(newName string) *WatchlistType {
 }
 
 func (wl *WatchlistType) WatchedSymbols() WatchedSymbolSlice {
-	logDebug.Printf("1 watched symbols: %v", wl.watchedSymbols)
 	bs := registry.GetBadSymbols()
 
 	for i := 0; i < bs.Count(); i++ {
 		for idx, currSymbol := range wl.watchedSymbols {
 			logDebug.Printf("idx: %d currSymbol: %s\n", idx, currSymbol.Stock().Symbol())
 			if bs.IsBadSymbol(currSymbol.Stock().Symbol()) {
-				logDebug.Printf("1 watched symbols: %v", wl.watchedSymbols)
-				logDebug.Printf("idx: %d currSymbol: %s\n", idx, currSymbol.Stock().Symbol())
 				wl.watchedSymbols[idx] = wl.watchedSymbols[len(wl.watchedSymbols)-1]
 				wl.watchedSymbols = wl.watchedSymbols[:len(wl.watchedSymbols)-1]
 				break
@@ -136,7 +133,7 @@ func (wl *WatchlistType) WatchedSymbols() WatchedSymbolSlice {
 		}
 	}
 
-	logDebug.Printf("2 watched symbols: %v", wl.watchedSymbols)
+	logDebug.Printf("returning watched symbols: %v", wl.watchedSymbols)
 	return wl.watchedSymbols
 }
 
